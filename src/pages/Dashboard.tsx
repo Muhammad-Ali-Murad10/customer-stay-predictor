@@ -19,9 +19,9 @@ const Dashboard = () => {
   const loyalPercentage = Math.round((customerData.loyalCustomers / customerData.totalCustomers) * 100);
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-background w-full">
       {/* Header */}
-      <header className="bg-primary text-white shadow-md">
+      <header className="bg-primary text-white shadow-md w-full">
         <div className="container mx-auto px-6 py-3">
           <div className="flex justify-between items-center">
             <div className="flex items-center space-x-2">
@@ -43,8 +43,8 @@ const Dashboard = () => {
       {/* Main Content */}
       <main className="container mx-auto px-4 py-8">
         {/* Welcome Section */}
-        <section className="mb-8 animate-enter">
-          <Card>
+        <section className="mb-8 opacity-100">
+          <Card className="border border-border shadow-sm">
             <CardHeader>
               <CardTitle className="text-2xl">Welcome to ShopIQ Analytics</CardTitle>
               <CardDescription>
@@ -69,7 +69,7 @@ const Dashboard = () => {
         {/* Stats Section */}
         <section className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
           {/* Total Customers */}
-          <Card className="card-hover animate-enter animate-enter-delay-1">
+          <Card className="card-hover border border-border shadow-sm">
             <CardHeader className="pb-2">
               <CardTitle className="text-lg font-medium flex items-center">
                 <Users className="h-5 w-5 mr-2 text-primary" />
@@ -87,7 +87,7 @@ const Dashboard = () => {
           </Card>
 
           {/* Loyal Customers */}
-          <Card className="card-hover animate-enter animate-enter-delay-2">
+          <Card className="card-hover border border-border shadow-sm">
             <CardHeader className="pb-2">
               <CardTitle className="text-lg font-medium flex items-center">
                 <UserCheck className="h-5 w-5 mr-2 text-success" />
@@ -108,7 +108,7 @@ const Dashboard = () => {
           </Card>
 
           {/* At-Risk Customers */}
-          <Card className="card-hover animate-enter animate-enter-delay-3">
+          <Card className="card-hover border border-border shadow-sm">
             <CardHeader className="pb-2">
               <CardTitle className="text-lg font-medium flex items-center">
                 <UserX className="h-5 w-5 mr-2 text-danger" />
@@ -130,8 +130,8 @@ const Dashboard = () => {
         </section>
 
         {/* Recent Activity */}
-        <section className="animate-enter animate-enter-delay-3">
-          <Card>
+        <section className="opacity-100">
+          <Card className="border border-border shadow-sm">
             <CardHeader>
               <CardTitle className="text-lg font-medium flex items-center">
                 <Activity className="h-5 w-5 mr-2 text-primary" />
@@ -144,7 +144,7 @@ const Dashboard = () => {
             <CardContent>
               <div className="space-y-6">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <Card className="bg-muted/50">
+                  <Card className="bg-muted/50 border border-border">
                     <CardHeader className="pb-2">
                       <CardTitle className="text-sm font-medium">
                         Churn Rate Trend
@@ -158,7 +158,7 @@ const Dashboard = () => {
                     </CardContent>
                   </Card>
                   
-                  <Card className="bg-muted/50">
+                  <Card className="bg-muted/50 border border-border">
                     <CardHeader className="pb-2">
                       <CardTitle className="text-sm font-medium">
                         Customer Satisfaction

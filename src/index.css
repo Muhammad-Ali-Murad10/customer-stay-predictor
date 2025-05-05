@@ -82,7 +82,7 @@
   }
 
   body {
-    @apply bg-background text-foreground;
+    @apply bg-background text-foreground min-h-screen w-full;
   }
 }
 
@@ -92,7 +92,7 @@
   }
   
   .animate-enter {
-    @apply opacity-0;
+    opacity: 1 !important;
     animation: fade-in 0.5s ease-out forwards;
   }
   
@@ -106,5 +106,24 @@
   
   .animate-enter-delay-3 {
     animation-delay: 0.3s;
+  }
+}
+
+#root {
+  width: 100%;
+  max-width: 100%;
+  margin: 0;
+  padding: 0;
+  text-align: left;
+}
+
+@keyframes fade-in {
+  0% { 
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  100% { 
+    opacity: 1;
+    transform: translateY(0);
   }
 }
