@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -15,6 +15,8 @@ import { useAuth } from '@/contexts/AuthContext';
 import { usePrediction } from '@/contexts/PredictionContext';
 import { ChurnPredictionData, ChurnPredictionResult } from '@/types';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
+import { generatePDF } from '@/utils/reportGenerator';
+import { toast } from '@/hooks/use-toast';
 
 const PredictionForm = () => {
   const navigate = useNavigate();
@@ -346,14 +348,17 @@ interface PredictionResultProps {
 }
 
 const PredictionResult: React.FC<PredictionResultProps> = ({ result }) => {
+  const resultRef = useRef<HTMLDivElement>(null);
+  const [isSaving, setIsSaving] = useState(false);
+
   const getColor = () => {
     switch (result.churnRisk) {
       case "high":
-        return "text-danger";
+        return "text-destructive";
       case "medium":
-        return "text-warning";
+        return "text-amber-500";
       case "low":
-        return "text-success";
+        return "text-emerald-500";
       default:
         return "text-primary";
     }
@@ -361,13 +366,41 @@ const PredictionResult: React.FC<PredictionResultProps> = ({ result }) => {
 
   const getProgressColor = () => {
     const score = result.churnProbability;
-    if (score > 0.7) return "bg-danger";
-    if (score > 0.4) return "bg-warning";
-    return "bg-success";
+    if (score > 0.7) return "bg-destructive";
+    if (score > 0.4) return "bg-amber-500";
+    return "bg-emerald-500";
+  };
+
+  const handleSaveAnalysis = async () => {
+    if (!resultRef.current) return;
+    
+    try {
+      setIsSaving(true);
+      // Format date for filename
+      const date = new Date();
+      const formattedDate = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
+      const filename = `churn-analysis-${formattedDate}`;
+      
+      await generatePDF('prediction-result', filename);
+      
+      toast({
+        title: "Analysis Saved",
+        description: "Your churn prediction report has been downloaded.",
+      });
+    } catch (error) {
+      console.error('Error saving analysis:', error);
+      toast({
+        title: "Error Saving Analysis",
+        description: "There was a problem creating your report. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsSaving(false);
+    }
   };
 
   return (
-    <Card className="shadow-lg">
+    <Card className="shadow-lg" id="prediction-result" ref={resultRef}>
       <CardHeader className="pb-2">
         <CardTitle>Churn Prediction Result</CardTitle>
         <CardDescription>
@@ -418,9 +451,15 @@ const PredictionResult: React.FC<PredictionResultProps> = ({ result }) => {
         </Alert>
 
         <div className="flex justify-center">
-          <Button variant="outline" size="sm" className="w-full">
+          <Button 
+            variant="outline" 
+            size="sm" 
+            className="w-full"
+            onClick={handleSaveAnalysis}
+            disabled={isSaving}
+          >
             <Save className="h-4 w-4 mr-2" />
-            Save Analysis
+            {isSaving ? "Saving..." : "Save Analysis"}
           </Button>
         </div>
       </CardContent>
