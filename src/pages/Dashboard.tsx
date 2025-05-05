@@ -5,15 +5,21 @@ import { Button } from '@/components/ui/button';
 import { useAuth } from '@/contexts/AuthContext';
 import { usePrediction } from '@/contexts/PredictionContext';
 import { useNavigate } from 'react-router-dom';
-import { BarChart, LogOut, Users, UserCheck, UserX, Activity } from 'lucide-react';
+import { BarChart, LogOut, Users, UserCheck, UserX, Activity, CalendarRange } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
+import DateRangePicker from '@/components/DateRangePicker';
+import ChurnRateChart from '@/components/ChurnRateChart';
+import SatisfactionChart from '@/components/SatisfactionChart';
+import { churnRateData, satisfactionData } from '@/data/chartData';
 
 const Dashboard = () => {
   const { user, logout } = useAuth();
   const { customerData } = usePrediction();
   const navigate = useNavigate();
   const [isLoading] = useState(false);
+  const [startMonth, setStartMonth] = useState(0); // January
+  const [endMonth, setEndMonth] = useState(11); // December
 
   const atRiskPercentage = Math.round((customerData.atRiskCustomers / customerData.totalCustomers) * 100);
   const loyalPercentage = Math.round((customerData.loyalCustomers / customerData.totalCustomers) * 100);
@@ -137,12 +143,21 @@ const Dashboard = () => {
                 <Activity className="h-5 w-5 mr-2 text-primary" />
                 Analytics Overview
               </CardTitle>
-              <CardDescription>
+              <CardDescription className="flex items-center">
+                <CalendarRange className="h-4 w-4 mr-1.5" />
                 Customer retention insights and churn prediction
               </CardDescription>
             </CardHeader>
             <CardContent>
               <div className="space-y-6">
+                {/* Date Range Picker */}
+                <DateRangePicker 
+                  startMonth={startMonth}
+                  endMonth={endMonth}
+                  onStartMonthChange={setStartMonth}
+                  onEndMonthChange={setEndMonth}
+                />
+                
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <Card className="bg-muted/50 border border-border">
                     <CardHeader className="pb-2">
@@ -150,11 +165,12 @@ const Dashboard = () => {
                         Churn Rate Trend
                       </CardTitle>
                     </CardHeader>
-                    <CardContent className="h-40 flex items-center justify-center">
-                      <div className="text-center text-muted-foreground">
-                        <p>Chart visualization would appear here</p>
-                        <p className="text-xs mt-2">Monthly customer retention analysis</p>
-                      </div>
+                    <CardContent className="pt-2">
+                      <ChurnRateChart 
+                        data={churnRateData} 
+                        startMonth={startMonth} 
+                        endMonth={endMonth} 
+                      />
                     </CardContent>
                   </Card>
                   
@@ -164,11 +180,12 @@ const Dashboard = () => {
                         Customer Satisfaction
                       </CardTitle>
                     </CardHeader>
-                    <CardContent className="h-40 flex items-center justify-center">
-                      <div className="text-center text-muted-foreground">
-                        <p>Chart visualization would appear here</p>
-                        <p className="text-xs mt-2">Average satisfaction score: 7.8/10</p>
-                      </div>
+                    <CardContent className="pt-2">
+                      <SatisfactionChart 
+                        data={satisfactionData} 
+                        startMonth={startMonth} 
+                        endMonth={endMonth} 
+                      />
                     </CardContent>
                   </Card>
                 </div>
