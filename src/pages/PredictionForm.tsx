@@ -1,4 +1,3 @@
-
 import React, { useState, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
@@ -430,6 +429,23 @@ const PredictionResult: React.FC<PredictionResultProps> = ({ result }) => {
 
         <Separator />
 
+        {/* Key Drivers Section */}
+        <div>
+          <h3 className="font-medium mb-3">Key Factors Influencing Risk</h3>
+          <ul className="space-y-2">
+            {result.keyDrivers.map((driver, i) => (
+              <li key={i} className="flex items-center space-x-2 text-sm">
+                <div className={`rounded-full ${i === 0 ? 'bg-destructive' : i === 1 ? 'bg-amber-500' : 'bg-primary'} h-5 w-5 flex items-center justify-center text-white text-xs shrink-0`}>
+                  {i + 1}
+                </div>
+                <span>{driver}</span>
+              </li>
+            ))}
+          </ul>
+        </div>
+
+        <Separator />
+
         <div>
           <h3 className="font-medium mb-3">Recommended Actions</h3>
           <ul className="space-y-2">
@@ -446,7 +462,7 @@ const PredictionResult: React.FC<PredictionResultProps> = ({ result }) => {
 
         <Alert className="bg-muted/50 border-muted">
           <AlertDescription className="text-xs text-muted-foreground">
-            Prediction is based on customer behavior patterns. For best results, verify with recent customer interactions.
+            Prediction is based on an ensemble model combining Random Forest and XGBoost algorithms with logistic regression meta-modeling.
           </AlertDescription>
         </Alert>
 

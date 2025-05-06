@@ -29,9 +29,23 @@ export const generatePDF = async (elementId: string, filename: string): Promise<
     const imgWidth = 210; // A4 width in mm (portrait)
     const imgHeight = (canvas.height * imgWidth) / canvas.width;
     
+    // Add title
+    pdf.setFontSize(16);
+    pdf.text('Customer Churn Prediction Report', 105, 15, { align: 'center' });
+    pdf.setFontSize(10);
+    pdf.text(`Generated on ${new Date().toLocaleDateString()}`, 105, 22, { align: 'center' });
+    
     // Add the image to the PDF
     const imgData = canvas.toDataURL('image/png');
-    pdf.addImage(imgData, 'PNG', 0, 0, imgWidth, imgHeight);
+    pdf.addImage(imgData, 'PNG', 0, 30, imgWidth, imgHeight);
+    
+    // Add footer
+    const pageCount = pdf.getNumberOfPages();
+    for(let i = 1; i <= pageCount; i++) {
+      pdf.setPage(i);
+      pdf.setFontSize(8);
+      pdf.text('ShopIQ Analytics - Confidential', 105, 290, { align: 'center' });
+    }
     
     // Save the PDF
     pdf.save(`${filename}.pdf`);
@@ -40,4 +54,3 @@ export const generatePDF = async (elementId: string, filename: string): Promise<
     throw error;
   }
 };
-
