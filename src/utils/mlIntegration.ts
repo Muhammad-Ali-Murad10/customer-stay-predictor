@@ -36,7 +36,8 @@ export const getPredictionFromAPI = async (data: ChurnPredictionData): Promise<C
     return {
       churnProbability: result.probability,
       churnRisk: getChurnRiskCategory(result.probability),
-      recommendations: result.recommendations || generateRecommendations(data, result.probability)
+      recommendations: result.recommendations || generateRecommendations(data, result.probability),
+      keyDrivers: result.keyDrivers || determineKeyFactors(data) // Added missing keyDrivers property
     };
   } catch (error) {
     console.error('Error getting prediction:', error);
@@ -85,6 +86,42 @@ const generateRecommendations = (data: ChurnPredictionData, probability: number)
 };
 
 /**
+ * Determine key factors influencing the prediction
+ */
+const determineKeyFactors = (data: ChurnPredictionData): string[] => {
+  const factors: string[] = [];
+  
+  // Add factors based on customer data
+  if (data.complaints > 0) {
+    factors.push("Customer Complaints");
+  }
+  
+  if (data.tenure < 12) {
+    factors.push("Short Customer Tenure");
+  }
+  
+  if (data.satisfactionScore < 7) {
+    factors.push("Low Satisfaction Score");
+  }
+  
+  if (data.cashbackAmount < 200) {
+    factors.push("Low Cashback Amount");
+  }
+  
+  if (data.cityTier > 1) {
+    factors.push("City Tier");
+  }
+  
+  // Ensure we have at least some factors
+  if (factors.length === 0) {
+    factors.push("Overall Customer Profile");
+  }
+  
+  // Return up to 3 key factors
+  return factors.slice(0, 3);
+};
+
+/**
  * Fallback prediction in case API call fails
  * In production, consider more sophisticated offline models or caching
  */
@@ -106,6 +143,7 @@ const getFallbackPrediction = (data: ChurnPredictionData): ChurnPredictionResult
   return {
     churnProbability: score,
     churnRisk: getChurnRiskCategory(score),
-    recommendations: generateRecommendations(data, score)
+    recommendations: generateRecommendations(data, score),
+    keyDrivers: determineKeyFactors(data) // Added missing keyDrivers property
   };
 };
