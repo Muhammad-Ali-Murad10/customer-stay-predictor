@@ -82,6 +82,10 @@ const generateRecommendations = (data: ChurnPredictionData, probability: number)
     recommendations.push("Offer mobile product promotions");
   }
   
+  if (!data.purchasedLaptopAccessory) {
+    recommendations.push("Suggest laptop accessories based on browsing history");
+  }
+  
   return recommendations.length > 0 ? recommendations : ["Continue monitoring customer behavior"];
 };
 
@@ -91,7 +95,7 @@ const generateRecommendations = (data: ChurnPredictionData, probability: number)
 const determineKeyFactors = (data: ChurnPredictionData): string[] => {
   const factors: string[] = [];
   
-  // Add factors based on customer data
+  // Add factors based on customer data with updated weight considerations
   if (data.complaints > 0) {
     factors.push("Customer Complaints");
   }
@@ -106,6 +110,10 @@ const determineKeyFactors = (data: ChurnPredictionData): string[] => {
   
   if (data.cashbackAmount < 200) {
     factors.push("Low Cashback Amount");
+  }
+  
+  if (!data.purchasedLaptopAccessory) {
+    factors.push("No Tech Product Purchases");
   }
   
   if (data.cityTier > 1) {
@@ -126,16 +134,29 @@ const determineKeyFactors = (data: ChurnPredictionData): string[] => {
  * In production, consider more sophisticated offline models or caching
  */
 const getFallbackPrediction = (data: ChurnPredictionData): ChurnPredictionResult => {
-  // Simple scoring formula as fallback
-  let score = 0.5; // Start at middle
+  // Updated scoring formula as fallback with new weights
+  let score = 0.3; // Adjusted base score
   
-  // Reduce score (less likely to churn) for positive factors
-  score -= (data.tenure / 100); // Longer tenure = less likely to churn
-  score -= (data.satisfactionScore / 20); // Higher satisfaction = less likely to churn
-  score -= (data.cashbackAmount / 1000); // More cashback = less likely to churn
+  // Tenure has higher weight in new model
+  score -= (data.tenure / 80) * 0.31;
   
-  // Increase score (more likely to churn) for negative factors
-  score += (data.complaints / 10); // More complaints = more likely to churn
+  // Complaints have higher weight in new model
+  score += (data.complaints * 0.39);
+  
+  // Satisfaction still important but less weight
+  score -= (data.satisfactionScore / 15) * 0.10;
+  
+  // Cashback has less weight
+  score -= (data.cashbackAmount / 1000) * 0.08;
+  
+  // Product purchases with adjusted weights
+  score -= data.purchasedLaptopAccessory ? 0.03 : 0;
+  score -= data.purchasedGrocery ? 0.04 : 0;
+  score -= data.purchasedMobile ? 0.02 : 0;
+  score -= data.purchasedOtherProducts ? 0.03 : 0;
+  
+  // City tier has less impact
+  score += (3 - data.cityTier) / 3 * 0.004;
   
   // Ensure score is between 0 and 1
   score = Math.max(0, Math.min(1, score));
@@ -144,6 +165,6 @@ const getFallbackPrediction = (data: ChurnPredictionData): ChurnPredictionResult
     churnProbability: score,
     churnRisk: getChurnRiskCategory(score),
     recommendations: generateRecommendations(data, score),
-    keyDrivers: determineKeyFactors(data) // Added missing keyDrivers property
+    keyDrivers: determineKeyFactors(data)
   };
 };
